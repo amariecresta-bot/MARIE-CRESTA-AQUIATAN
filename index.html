@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arcade Pulse — Playable HTML5 Games Hub</title>
+  <style>
+    :root {
+      --pink: #ff4da6;
+      --pink-soft: #ffe4f1;
+      --grey-bg: #eef0f4;
+      --grey-panel: #dfe3ea;
+      --grey-muted: #5c6475;
+      --white: #ffffff;
+      --blue: #1d6ff2;
+      --blue-dark: #134eb0;
+      --red: #e63946;
+      --red-soft: #ffe3e6;
+      --ink: #1b202c;
+      --radius: 14px;
+      --shadow: 0 10px 28px rgba(27, 32, 44, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--grey-bg);
+      color: var(--ink);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Header */
+    header {
+      background: var(--white);
+      border-bottom: 3px solid var(--grey-panel);
+      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .nav-wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink), var(--blue), var(--red));
+      box-shadow: 0 0 0 3px var(--pink-soft);
+    }
+
+    .nav-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tab-btn {
+      border: 2px solid var(--grey-panel);
+      background: var(--grey-bg);
+      color: var(--ink);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--blue);
+      background: var(--white);
+    }
+
+    .tab-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: var(--white);
+    }
+
+    .sound-btn {
+      border: 2px solid var(--pink);
+      background: var(--pink-soft);
+      color: var(--ink);
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .sound-btn.muted {
+      border-color: var(--grey-muted);
+      background: var(--grey-panel);
+      color: var(--grey-muted);
+    }
+
+    /* Main Content */
+    main {
+      max-width: 1040px;
+      width: 100%;
+      margin: 1.5rem auto;
+      padding: 0 1.25rem 2.5rem;
+      flex: 1;
+    }
+
+    .hero {
+      background: var(--white);
+      border: 2px solid var(--grey-panel);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .hero h1 {
+      font-size: 1.65rem;
+      line-height: 1.2;
+      margin-bottom: 0.35rem;
+    }
+
+    .hero p {
+      color: var(--grey-muted);
+      max-width: 60ch;
+      font-size: 0.96rem;
+    }
+
+    .color-pills {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .pill {
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .pill-pink { background: var(--pink); color: var(--white); }
+    .pill-blue { background: var(--blue); color: var(--white); }
+    .pill-red  { background: var(--red); color: var(--white); }
+    .pill-grey { background: var(--grey-panel); color: var(--ink); }
+
+    /* Game Stage Card */
+    .game-panel {
+      background: var(--white);
+      border: 2px solid var(--grey-panel);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+
+    .game-panel.active {
+      display: block;
+    }
+
+    .hud {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: var(--grey-bg);
+      border: 2px solid var(--grey-panel);
+      border-radius: 10px;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--grey-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .stat-value.pink { color: var(--pink); }
+    .stat-value.blue { color: var(--blue); }
+    .stat-value.red  { color: var(--red); }
+
+    .action-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--pink);
+      color: var(--white);
+      border: none;
+      padding: 0.65rem 1.2rem;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: transform 0.1s ease, filter 0.15s ease;
+    }
+
+    .btn-primary:hover { filter: brightness(1.05); }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-secondary {
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      padding: 0.65rem 1.1rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover { background: var(--blue-dark); }
+
+    /* Game 1: Neon Reflex Grid */
+    .rule-banner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background: var(--pink-soft);
+      border: 2px solid var(--pink);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.25rem;
+      font-weight: 700;
+    }
+
+    .target-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      color: var(--white);
+      font-weight: 800;
+    }
+
+    .grid-board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.85rem;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .tile {
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      border: 3px solid var(--grey-panel);
+      background: var(--grey-bg);
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.12s ease, background-color 0.15s ease, border-color 0.15s ease;
+      user-select: none;
+    }
+
+    .tile:hover {
+      transform: translateY(-2px);
+    }
+
+    .tile.tile-pink {
+      background: var(--pink);
+      border-color: #d62d82;
+    }
+
+    .tile.tile-blue {
+      background: var(--blue);
+      border-color: var(--blue-dark);
+    }
+
+    .tile.tile-red {
+      background: var(--red);
+      border-color: #b3222e;
+    }
+
+    .tile.tile-grey {
+      background: var(--grey-panel);
+      border-color: #c7cdd8;
+      color: var(--grey-muted);
+    }
+
+    .tile.hit-flash {
+      transform: scale(0.92);
+      box-shadow: 0 0 0 4px var(--blue);
+    }
+
+    .tile.miss-flash {
+      background: var(--red-soft) !important;
+      border-color: var(--red) !important;
+      color: var(--red) !important;
+    }
+
+    /* Game 2: Pulse Pong Canvas */
+    .canvas-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 760px;
+      aspect-ratio: 16 / 9;
+      background: var(--grey-bg);
+      border: 3px solid var(--grey-panel);
+      border-radius: 12px;
+      display: block;
+      touch-action: none;
+    }
+
+    .hint-text {
+      font-size: 0.88rem;
+      color: var(--grey-muted);
+      text-align: center;
+    }
+
+    .status-msg {
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: 800;
+      min-height: 1.5rem;
+      color: var(--blue);
+    }
+
+    .status-msg.alert {
+      color: var(--red);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.25rem;
+      color: var(--grey-muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 520px) {
+      .grid-board {
+        gap: 0.55rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-wrap">
+      <div class="brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span>ARCADE PULSE</span>
+      </div>
+      <div class="nav-controls" role="tablist" aria-label="Choose a game">
+        <button class="tab-btn active" role="tab" aria-selected="true" data-game="reflex">
+          1. Reflex Grid
+        </button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-game="pong">
+          2. Pulse Pong
+        </button>
+        <button id="soundToggle" class="sound-btn" type="button" aria-pressed="false">
+          Sound: ON
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <h1>Playable Browser Games Hub</h1>
+        <p>
+          Switch between two interactive mini-games powered by HTML5, CSS, and vanilla JavaScript.
+          Hit targets fast in <strong>Reflex Grid</strong> or outsmart the AI in <strong>Pulse Pong</strong>.
+        </p>
+      </div>
+      <div class="color-pills" aria-label="Theme colors">
+        <span class="pill pill-pink">Pink</span>
+        <span class="pill pill-blue">Blue</span>
+        <span class="pill pill-red">Red</span>
+        <span class="pill pill-grey">Grey / White</span>
+      </div>
+    </section>
+
+    <!-- GAME 1: REFLEX GRID -->
+    <section id="panel-reflex" class="game-panel active" role="tabpanel" aria-label="Reflex Grid Game">
+      <div class="hud">
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-label">Score</span>
+            <span id="reflexScore" class="stat-value blue">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Best</span>
+            <span id="reflexBest" class="stat-value pink">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Time Left</span>
+            <span id="reflexTime" class="stat-value red">25s</span>
+          </div>
+        </div>
+        <div class="action-row">
+          <button id="startReflexBtn" class="btn-primary" type="button">Start Round</button>
+        </div>
+      </div>
+
+      <div class="rule-banner">
+        <span>Click only tiles matching the active target color (+10 pts). Red/wrong clicks cost -5 pts!</span>
+        <div>
+          Target: <span id="targetBadge" class="target-badge" style="background: var(--pink);">PINK</span>
+        </div>
+      </div>
+
+      <div id="reflexGrid" class="grid-board" aria-label="4 by 4 reflex tiles"></div>
+      <p id="reflexStatus" class="status-msg">Press "Start Round" to play!</p>
+    </section>
+
+    <!-- GAME 2: PULSE PONG -->
+    <section id="panel-pong" class="game-panel" role="tabpanel" aria-label="Pulse Pong Game">
+      <div class="hud">
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-label">You (Blue)</span>
+            <span id="playerScore" class="stat-value blue">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">CPU (Red)</span>
+            <span id="cpuScore" class="stat-value red">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Rally Speed</span>
+            <span id="ballSpeedLabel" class="stat-value pink">1.0x</span>
+          </div>
+        </div>
+        <div class="action-row">
+          <button id="startPongBtn" class="btn-primary" type="button">Serve / Restart</button>
+          <button id="pausePongBtn" class="btn-secondary" type="button">Pause</button>
+        </div>
+      </div>
+
+      <div class="canvas-wrap">
+        <canvas id="pongCanvas" width="760" height="428"></canvas>
+        <p class="hint-text">
+          Controls: Move your <strong>mouse / touch</strong> over the canvas, or press <strong>W / S</strong> or <strong>Up / Down</strong> arrow keys. First to 7 points wins!
+        </p>
+      </div>
+      <p id="pongStatus" class="status-msg">Click "Serve / Restart" to begin the rally.</p>
+    </section>
+  </main>
+
+  <footer>
+    Built with HTML5, CSS3 &amp; Vanilla JavaScript — Arcade Pulse
+  </footer>
+
+  <script>
+    // --- Lightweight Web Audio Synth (no external assets needed) ---
+    const SoundFX = (() => {
+      let ctx = null;
+      let muted = false;
+
+      function ensureCtx() {
+        if (!ctx && (window.AudioContext || window.webkitAudioContext)) {
+          ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (ctx && ctx.state === "suspended") {
+          ctx.resume();
+        }
+      }
+
+      function tone(freq, duration = 0.09, type = "sine", gainVal = 0.12) {
+        if (muted) return;
+        ensureCtx();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      }
+
+      return {
+        hit: () => tone(620, 0.08, "triangle", 0.14),
+        miss: () => tone(180, 0.16, "sawtooth", 0.12),
+        win: () => {
+          tone(523.25, 0.1, "triangle", 0.14);
+          setTimeout(() => tone(659.25, 0.1, "triangle", 0.14), 100);
+          setTimeout(() => tone(783.99, 0.18, "triangle", 0.14), 200);
+        },
+        toggleMute() {
+          muted = !muted;
+          return muted;
+        }
+      };
+    })();
+
+    const soundBtn = document.getElementById("soundToggle");
+    soundBtn.addEventListener("click", () => {
+      const isMuted = SoundFX.toggleMute();
+      soundBtn.textContent = isMuted ? "Sound: OFF" : "Sound: ON";
+      soundBtn.classList.toggle("muted", isMuted);
+      soundBtn.setAttribute("aria-pressed", String(isMuted));
+    });
+
+    // --- Tab Navigation ---
+    const tabBtns = document.querySelectorAll(".tab-btn");
+    const panels = {
+      reflex: document.getElementById("panel-reflex"),
+      pong: document.getElementById("panel-pong")
+    };
+
+    tabBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = btn.dataset.game;
+        tabBtns.forEach((b) => {
+          const active = b === btn;
+          b.classList.toggle("active", active);
+          b.setAttribute("aria-selected", String(active));
+        });
+        Object.entries(panels).forEach(([key, panel]) => {
+          panel.classList.toggle("active", key === target);
+        });
+      });
+    });
+
+    // =========================================================================
+    // GAME 1: NEON REFLEX GRID
+    // =========================================================================
+    (() => {
+      const gridEl = document.getElementById("reflexGrid");
+      const scoreEl = document.getElementById("reflexScore");
+      const bestEl = document.getElementById("reflexBest");
+      const timeEl = document.getElementById("reflexTime");
+      const targetBadge = document.getElementById("targetBadge");
+      const statusEl = document.getElementById("reflexStatus");
+      const startBtn = document.getElementById("startReflexBtn");
+
+      const COLORS = [
+        { key: "pink", label: "PINK", css: "var(--pink)" },
+        { key: "blue", label: "BLUE", css: "var(--blue)" },
+        { key: "red",  label: "RED",  css: "var(--red)" }
+      ];
+
+      let score = 0;
+      let best = Number(localStorage.getItem("arcadePulseReflexBest") || 0);
+      let timeLeft = 25;
+      let active = false;
+      let currentTarget = COLORS[0];
+      let timerId = null;
+      let spawnId = null;
+      let tiles = [];
+
+      bestEl.textContent = best;
+
+      // Build 16 tiles
+      for (let i = 0; i < 16; i++) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "tile tile-grey";
+        btn.textContent = "•";
+        btn.addEventListener("click", () => handleTileClick(i));
+        gridEl.appendChild(btn);
+        tiles.push(btn);
+      }
+
+      function pickTarget() {
+        currentTarget = COLORS[Math.floor(Math.random() * COLORS.length)];
+        targetBadge.textContent = currentTarget.label;
+        targetBadge.style.background = currentTarget.css;
+      }
+
+      function randomizeBoard() {
+        if (!active) return;
+        pickTarget();
+        // Guarantee at least 2 target tiles so player always has a clear move
+        const indices = [...Array(16).keys()].sort(() => Math.random() - 0.5);
+        const guaranteedTargets = new Set(indices.slice(0, 2));
+
+        tiles.forEach((tile, idx) => {
+          tile.className = "tile";
+          if (guaranteedTargets.has(idx)) {
+            tile.dataset.color = currentTarget.key;
+            tile.classList.add(`tile-${currentTarget.key}`);
+            tile.textContent = currentTarget.label;
+          } else {
+            const roll = Math.random();
+            if (roll < 0.45) {
+              tile.dataset.color = "grey";
+              tile.classList.add("tile-grey");
+              tile.textContent = "•";
+            } else {
+              const c = COLORS[Math.floor(Math.random() * COLORS.length)];
+              tile.dataset.color = c.key;
+              tile.classList.add(`tile-${c.key}`);
+              tile.textContent = c.label;
+            }
+          }
+        });
+      }
+
+      function handleTileClick(idx) {
+        if (!active) return;
+        const tile = tiles[idx];
+        const color = tile.dataset.color;
+
+        if (color === currentTarget.key) {
+          score += 10;
+          SoundFX.hit();
+          tile.classList.add("hit-flash");
+          tile.dataset.color = "grey";
+          tile.className = "tile tile-grey hit-flash";
+          tile.textContent = "✓";
+          setTimeout(() => tile.classList.remove("hit-flash"), 140);
+          statusEl.textContent = "Nice hit! +10 pts";
+          statusEl.classList.remove("alert");
+        } else {
+          score = Math.max(0, score - 5);
+          SoundFX.miss();
+          tile.classList.add("miss-flash");
+          setTimeout(() => tile.classList.remove("miss-flash"), 180);
+          statusEl.textContent = `Wrong tile! Target was ${currentTarget.label} (-5 pts)`;
+          statusEl.classList.add("alert");
+        }
+
+        scoreEl.textContent = score;
+        if (score > best) {
+          best = score;
+          bestEl.textContent = best;
+          localStorage.setItem("arcadePulseReflexBest", String(best));
+        }
+      }
+
+      function endRound() {
+        active = false;
+        clearInterval(timerId);
+        clearInterval(spawnId);
+        SoundFX.win();
+        tiles.forEach((t) => {
+          t.className = "tile tile-grey";
+          t.dataset.color = "grey";
+          t.textContent = "•";
+        });
+        statusEl.textContent = `Time's up! Final score: ${score} pts.`;
+        statusEl.classList.remove("alert");
+        startBtn.disabled = false;
+        startBtn.textContent = "Play Again";
+      }
+
+      startBtn.addEventListener("click", () => {
+        score = 0;
+        timeLeft = 25;
+        active = true;
+        scoreEl.textContent = "0";
+        timeEl.textContent = "25s";
+        startBtn.disabled = true;
+        startBtn.textContent = "In Progress...";
+        statusEl.textContent = "Go! Match the target badge color!";
+        statusEl.classList.remove("alert");
+
+        randomizeBoard();
+        spawnId = setInterval(randomizeBoard, 1350);
+        timerId = setInterval(() => {
+          timeLeft -= 1;
+          timeEl.textContent = `${timeLeft}s`;
+          if (timeLeft <= 0) {
+            endRound();
+          }
+        }, 1000);
+      });
+    })();
+
+    // =========================================================================
+    // GAME 2: PULSE PONG
+    // =========================================================================
+    (() => {
+      const canvas = document.getElementById("pongCanvas");
+      const ctx = canvas.getContext("2d");
+      const playerScoreEl = document.getElementById("playerScore");
+      const cpuScoreEl = document.getElementById("cpuScore");
+      const speedLabelEl = document.getElementById("ballSpeedLabel");
+      const statusEl = document.getElementById("pongStatus");
+      const startBtn = document.getElementById("startPongBtn");
+      const pauseBtn = document.getElementById("pausePongBtn");
+
+      const WIN_SCORE = 7;
+      const paddleW = 14;
+      const paddleH = 84;
+      const ballR = 10;
+
+      let state = {
+        running: false,
+        paused: false,
+        playerY: canvas.height / 2 - paddleH / 2,
+        cpuY: canvas.height / 2 - paddleH / 2,
+        playerScore: 0,
+        cpuScore: 0,
+        ballX: canvas.width / 2,
+        ballY: canvas.height / 2,
+        ballVX: 5.2,
+        ballVY: 3.1,
+        speedMult: 1.0,
+        keys: { up: false, down: false }
+      };
+
+      function resetBall(serveTowardsPlayer = false) {
+        state.ballX = canvas.width / 2;
+        state.ballY = canvas.height / 2;
+        state.speedMult = 1.0;
+        const dir = serveTowardsPlayer ? -1 : 1;
+        const angle = (Math.random() * 0.6 - 0.3);
+        const baseSpeed = 5.4;
+        state.ballVX = Math.cos(angle) * baseSpeed * dir;
+        state.ballVY = Math.sin(angle) * baseSpeed;
+        speedLabelEl.textContent = "1.0x";
+      }
+
+      function startGame() {
+        state.playerScore = 0;
+        state.cpuScore = 0;
+        state.playerY = canvas.height / 2 - paddleH / 2;
+        state.cpuY = canvas.height / 2 - paddleH / 2;
+        state.running = true;
+        state.paused = false;
+        pauseBtn.textContent = "Pause";
+        playerScoreEl.textContent = "0";
+        cpuScoreEl.textContent = "0";
+        statusEl.textContent = "Rally on! First to 7 wins.";
+        statusEl.classList.remove("alert");
+        resetBall(Math.random() < 0.5);
+      }
+
+      startBtn.addEventListener("click", startGame);
+
+      pauseBtn.addEventListener("click", () => {
+        if (!state.running) return;
+        state.paused = !state.paused;
+        pauseBtn.textContent = state.paused ? "Resume" : "Pause";
+        statusEl.textContent = state.paused ? "Game paused." : "Rally resumed!";
+      });
+
+      // Pointer & keyboard controls
+      canvas.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const scaleY = canvas.height / rect.height;
+        const y = (e.clientY - rect.top) * scaleY;
+        state.playerY = Math.max(8, Math.min(canvas.height - paddleH - 8, y - paddleH / 2));
+      });
+
+      canvas.addEventListener("touchmove", (e) => {
+        if (!e.touches.length) return;
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const scaleY = canvas.height / rect.height;
+        const y = (e.touches[0].clientY - rect.top) * scaleY;
+        state.playerY = Math.max(8, Math.min(canvas.height - paddleH - 8, y - paddleH / 2));
+      }, { passive: false });
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") state.keys.up = true;
+        if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") state.keys.down = true;
+      });
+
+      window.addEventListener("keyup", (e) => {
+        if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") state.keys.up = false;
+        if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") state.keys.down = false;
+      });
+
+      function update() {
+        if (!state.running || state.paused) return;
+
+        // Keyboard paddle movement
+        const paddleSpeed = 7.5;
+        if (state.keys.up) state.playerY -= paddleSpeed;
+        if (state.keys.down) state.playerY += paddleSpeed;
+        state.playerY = Math.max(8, Math.min(canvas.height - paddleH - 8, state.playerY));
+
+        // Move ball
+        state.ballX += state.ballVX * state.speedMult;
+        state.ballY += state.ballVY * state.speedMult;
+
+        // Top / bottom wall bounce
+        if (state.ballY - ballR <= 4) {
+          state.ballY = 4 + ballR;
+          state.ballVY = Math.abs(state.ballVY);
+          SoundFX.hit();
+        } else if (state.ballY + ballR >= canvas.height - 4) {
